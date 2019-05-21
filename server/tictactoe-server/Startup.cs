@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,8 @@ namespace tictactoe_server
 					});
 			});
 
+			//services.AddSignalR();
+
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
 				.AddJsonOptions(options =>
 				{
@@ -59,6 +62,9 @@ namespace tictactoe_server
 			}
 
 			app.UseCors("CorsPolicy");
+
+			//app.UseSignalR();
+
 
 			app.UseMvc();
 		}

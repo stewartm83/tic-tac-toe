@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,83 +15,32 @@ namespace tictactoe_server.Controllers
 	public class PositionsController : ControllerBase
 	{
 		private readonly TicTacToeContext _context;
-
+		//private readonly IHubContext<NotificationHub> _hubContext;
+		//public PositionsController(TicTacToeContext context, IHubContext<NotificationHub> hubContext)
+		//{
+		//	_context = context;
+		//	_hubContext = hubContext;
+		//}
 		public PositionsController(TicTacToeContext context)
 		{
-			_context = context;
-		}
-
-		// GET: api/Positions
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Position>>> GetPosition()
-		{
-			return await _context.Positions.ToListAsync();
-		}
-
-		// GET: api/Positions/5
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Position>> GetPosition(int id)
-		{
-			var position = await _context.Positions.FindAsync(id);
-
-			if (position == null)
-			{
-				return NotFound();
-			}
-
-			return position;
-		}
-
-		// PUT: api/Positions/5
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutPosition(int id, Position position)
-		{
-			if (id != position.Id)
-			{
-				return BadRequest();
-			}
-
-			_context.Entry(position).State = EntityState.Modified;
-
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!PositionExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
-
-			return NoContent();
+			_context = context;	
 		}
 
 		// POST: api/Positions
 		[HttpPost]
 		public async Task<ActionResult<Position>> PostPosition([FromBody] Position position)
 		{
-			var game = _context.Games.Include(p => p.Positions).First(g => g.Id == position.GameId);
+			var game = _context.Games.Include(p => p.Positions).FirstOrDefault(g => g.Id == position.GameId);
 			game.PlacePlayerMarker(position.Marker, position.Index);
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync();			
+		
+			if (game.CheckWinner())		
+				return new JsonResult(new { message = position.Marker + ", You have won" , position });
+		
 
-			
-			bool isWinner = game.CheckWinner();
-			if (isWinner)
-			{
-				return new JsonResult(new { message = position.Marker + ", You have won" });
-			}
-
-			bool isDraw = game.CheckGameOverDraw();
-			if (isDraw)
-			{
+			if (game.CheckGameOverDraw())	
 				return new JsonResult(new { message = "Game is a Draw" });
-			}
+		
 
 			int aiChoice = game.GenerateAIChoice();
 			if (aiChoice != 0)
@@ -98,46 +48,22 @@ namespace tictactoe_server.Controllers
 				var aiMarker = position.Marker == "X" ? "O" : "X";			
 				game.PlacePlayerMarker(aiMarker, aiChoice);
 				await _context.SaveChangesAsync();
-
-				isWinner = game.CheckWinner();
-				if (isWinner)
-				{
-					return new JsonResult(new { message = position.Marker + ", You have lost" });
-				}
-
-				isDraw = game.CheckGameOverDraw();
-				if (isDraw)
-				{
-					return new JsonResult(new { message = "Game is a Draw" });
-				}
 			
+				if (game.CheckWinner())	
+					return new JsonResult(new { message = position.Marker + ", You have lost" });	
+
+		
+				if (game.CheckGameOverDraw())		
+					return new JsonResult(new { message = "Game is a Draw" });
+
+				//await _hubContext.Clients.All.SendAsync("Move", $"Marker: {aiMarker}, Position: {aiChoice}");
 
 				return new JsonResult(new Position {Marker = aiMarker, Index = aiChoice, GameId = position.GameId });
+				
 			}
 
 			return new JsonResult(new { message = "Game is a Draw" });
 
-		}
-
-		// DELETE: api/Positions/5
-		[HttpDelete("{id}")]
-		public async Task<ActionResult<Position>> DeletePosition(int id)
-		{
-			var position = await _context.Positions.FindAsync(id);
-			if (position == null)
-			{
-				return NotFound();
-			}
-
-			_context.Positions.Remove(position);
-			await _context.SaveChangesAsync();
-
-			return position;
-		}
-
-		private bool PositionExists(int id)
-		{
-			return _context.Positions.Any(e => e.Id == id);
-		}
+		}	
 	}
 }

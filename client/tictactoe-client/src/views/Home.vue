@@ -4,9 +4,9 @@
     <h1>Welcome to Your Vue.js App</h1>
     <div id="selection">
       Play as:
-      <input type="radio" id="x" value="X" v-model="picked">
+      <input style="font-size: 22px" type="radio" id="x" value="X" v-model="picked">
       <label for="x">X</label>
-      <input type="radio" id="o" value="O" v-model="picked">
+      <input style="font-size: 22px" type="radio" id="o" value="O" v-model="picked">
       <label for="o">O</label>
       <br>
       <span>Picked: {{ picked }}</span>

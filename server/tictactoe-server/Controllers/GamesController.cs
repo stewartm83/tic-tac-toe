@@ -41,36 +41,6 @@ namespace tictactoe_server.Controllers
 			return new ObjectResult(game);
 		}
 
-		// PUT: api/Games/5
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutGame(int id, Game game)
-		{
-			if (id != game.Id)
-			{
-				return BadRequest();
-			}
-
-			_context.Entry(game).State = EntityState.Modified;
-
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!GameExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
-
-			return NoContent();
-		}
-
 		// POST: api/Games
 		[HttpPost]
 		public async Task<ActionResult<Game>> PostGame(string marker)
@@ -107,11 +77,6 @@ namespace tictactoe_server.Controllers
 			await _context.SaveChangesAsync();
 
 			return game;
-		}
-
-		private bool GameExists(int id)
-		{
-			return _context.Games.Any(e => e.Id == id);
-		}
+		}	
 	}
 }
