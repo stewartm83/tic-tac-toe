@@ -9,6 +9,8 @@ namespace tictactoe_server.Models
 	{
 		public int Id { get; set; }
 		public int Index { get; set; }
+
+		public int GameId { get; set; }
 		public string Marker { get; set; }
 		public Game Game { get; set; }
 	}

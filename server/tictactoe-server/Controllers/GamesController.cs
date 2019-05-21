@@ -9,109 +9,103 @@ using tictactoe_server.Models;
 
 namespace tictactoe_server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GamesController : ControllerBase
-    {
-        private readonly TicTacToeContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class GamesController : Controller
+	{
+		private readonly TicTacToeContext _context;
 
-        public GamesController()
-        {
-            _context = new TicTacToeContext();
-        }
+		public GamesController()
+		{
+			_context = new TicTacToeContext();
+		}
 
-        // GET: api/Games
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Game>>> GetGame()
-        {
-            return await _context.Game.ToListAsync();
-        }
+		// GET: api/Games
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Game>>> GetGame()
+		{
+			return await _context.Games.ToListAsync();
+		}
 
-        // GET: api/Games/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(int id)
-        {
-            var game = await _context.Game.FindAsync(id);
+		// GET: api/Games/5
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Game>> GetGame(int id)
+		{
+			var game = await _context.Games.FindAsync(id);
 
-            if (game == null)
-            {
-                return NotFound();
-            }
-
-            return game;
-        }
-
-        // PUT: api/Games/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame(int id, Game game)
-        {
-            if (id != game.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(game).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GameExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Games
-        [HttpPost]
-        public async Task<ActionResult<Game>> PostGame(string markerX,string markerO, string activeMarker)
-        {
-			Game game = new Game
+			if (game == null)
 			{
-				PlayerOne = new Player() { IsActive = activeMarker == markerX, Marker = markerX },
-				PlayerTwo = new Player() { IsActive = activeMarker == markerO, Marker = markerO },
-				Positions = new List<Position>()
-			};
-		
-			for (int i = 0; i < 9; i++)
-			{
-				game.Positions.Add(new Position() { Index = i, Marker = string.Empty });
+				return NotFound();
 			}
 
-			_context.Game.Add(game);
-            await _context.SaveChangesAsync();
+			return new ObjectResult(game);
+		}
 
-            return CreatedAtAction("GetGame", new { id = game.Id }, game);
-        }
+		// PUT: api/Games/5
+		[HttpPut("{id}")]
+		public async Task<IActionResult> PutGame(int id, Game game)
+		{
+			if (id != game.Id)
+			{
+				return BadRequest();
+			}
 
-        // DELETE: api/Games/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Game>> DeleteGame(int id)
-        {
-            var game = await _context.Game.FindAsync(id);
-            if (game == null)
-            {
-                return NotFound();
-            }
+			_context.Entry(game).State = EntityState.Modified;
 
-            _context.Game.Remove(game);
-            await _context.SaveChangesAsync();
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!GameExists(id))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
 
-            return game;
-        }
+			return NoContent();
+		}
 
-        private bool GameExists(int id)
-        {
-            return _context.Game.Any(e => e.Id == id);
-        }
-    }
+		// POST: api/Games
+		[HttpPost]
+		public async Task<ActionResult<Game>> PostGame(string marker)
+		{
+			Game game = new Game
+			{
+				PlayerOne = new Player { IsActive = marker == "X", Marker = "X" },
+				PlayerTwo = new Player { IsActive = marker == "O", Marker = "O" }
+			};
+
+			_context.Games.Add(game);
+			await _context.SaveChangesAsync();
+
+			return new JsonResult(game);
+		}
+
+		// DELETE: api/Games/5
+		[HttpDelete("{id}")]
+		public async Task<ActionResult<Game>> DeleteGame(int id)
+		{
+			var game = await _context.Games.FindAsync(id);
+			if (game == null)
+			{
+				return NotFound();
+			}
+
+			_context.Games.Remove(game);
+			await _context.SaveChangesAsync();
+
+			return game;
+		}
+
+		private bool GameExists(int id)
+		{
+			return _context.Games.Any(e => e.Id == id);
+		}
+	}
 }

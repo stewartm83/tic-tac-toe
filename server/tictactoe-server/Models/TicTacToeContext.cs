@@ -22,6 +22,10 @@ namespace tictactoe_server.Models
 				.WithOne(e => e.Game);
 		}
 
-		public DbSet<tictactoe_server.Models.Game> Game { get; set; }
+		public DbSet<Game> Games { get; set; }
+
+		public DbSet<Position> Positions { get; set; }
+
+		public DbSet<Player> Players { get; set; }
 	}
 }
