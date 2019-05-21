@@ -1,24 +1,26 @@
 <template>
   <div class="hello">
-    <div id="result" v-if="resultMessage">{{resultMessage}}</div>
-    <table>
-      <tr id="row0" class="row">
-        <td ref="cell0" class="spot" @click="handleClick(0)"></td>
-        <td ref="cell1" class="spot" @click="handleClick(1)"></td>
-        <td ref="cell2" class="spot" @click="handleClick(2)"></td>
-      </tr>
-      <tr id="row1" class="row">
-        <td ref="cell3" class="spot" @click="handleClick(3)"></td>
-        <td ref="cell4" class="spot" @click="handleClick(4)"></td>
-        <td ref="cell5" class="spot" @click="handleClick(5)"></td>
-      </tr>
-      <tr id="row2" class="row">
-        <td ref="cell6" class="spot" @click="handleClick(6)"></td>
-        <td ref="cell7" class="spot" @click="handleClick(7)"></td>
-        <td ref="cell8" class="spot" @click="handleClick(8)"></td>
-      </tr>
-    </table>
-    <button @click="resetGame()">Restart</button>
+    <button style="font-size: 22px" @click="resetGame()">Restart</button>
+    <div>
+      <div id="result" v-if="resultMessage">{{resultMessage}}</div>
+      <table>
+        <tr id="row0" class="row">
+          <td ref="cell0" class="spot" @click="handleClick(0)"></td>
+          <td ref="cell1" class="spot" @click="handleClick(1)"></td>
+          <td ref="cell2" class="spot" @click="handleClick(2)"></td>
+        </tr>
+        <tr id="row1" class="row">
+          <td ref="cell3" class="spot" @click="handleClick(3)"></td>
+          <td ref="cell4" class="spot" @click="handleClick(4)"></td>
+          <td ref="cell5" class="spot" @click="handleClick(5)"></td>
+        </tr>
+        <tr id="row2" class="row">
+          <td ref="cell6" class="spot" @click="handleClick(6)"></td>
+          <td ref="cell7" class="spot" @click="handleClick(7)"></td>
+          <td ref="cell8" class="spot" @click="handleClick(8)"></td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 <script>
@@ -164,12 +166,7 @@ tr {
 }
 
 button {
-	border: none;
-	background: transparent;
-	width: 50px;
-	height: 50px;
 	margin: 0.3em;
-	border-radius: 50%;
 }
 
 .hover:hover {
