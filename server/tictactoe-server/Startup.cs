@@ -24,6 +24,19 @@ namespace tictactoe_server
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors(options =>
+			{
+				options.AddPolicy("CorsPolicy",
+					builder =>
+					{
+						builder
+							.AllowAnyHeader()
+							.AllowAnyMethod()
+							.AllowCredentials()
+							.WithOrigins("http://localhost:8080");
+					});
+			});
+
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 		}
 
@@ -34,6 +47,8 @@ namespace tictactoe_server
 			{
 				app.UseDeveloperExceptionPage();
 			}
+
+			app.UseCors("CorsPolicy");
 
 			app.UseMvc();
 		}
