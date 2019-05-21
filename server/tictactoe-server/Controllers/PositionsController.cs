@@ -15,9 +15,9 @@ namespace tictactoe_server.Controllers
 	{
 		private readonly TicTacToeContext _context;
 
-		public PositionsController()
+		public PositionsController(TicTacToeContext context)
 		{
-			_context = new TicTacToeContext();
+			_context = context;
 		}
 
 		// GET: api/Positions
@@ -75,46 +75,44 @@ namespace tictactoe_server.Controllers
 		[HttpPost]
 		public async Task<ActionResult<Position>> PostPosition([FromBody] Position position)
 		{
-			var game = _context.Games.FirstOrDefault(g => g.Id == position.GameId);
+			var game = _context.Games.Include(p => p.Positions).First(g => g.Id == position.GameId);
 			game.PlacePlayerMarker(position.Marker, position.Index);
-
-			_context.Positions.Add(position);
 			await _context.SaveChangesAsync();
 
-			bool isDraw = game.CheckGameOverDraw();
-			if (isDraw)
-			{
-				return new JsonResult(new { message = "Game is a Draw" });
-			}
+			
 			bool isWinner = game.CheckWinner();
 			if (isWinner)
 			{
 				return new JsonResult(new { message = position.Marker + ", You have won" });
 			}
 
+			bool isDraw = game.CheckGameOverDraw();
+			if (isDraw)
+			{
+				return new JsonResult(new { message = "Game is a Draw" });
+			}
+
 			int aiChoice = game.GenerateAIChoice();
 			if (aiChoice != 0)
 			{
-				var aiMarker = position.Marker == "X" ? "O" : "X";
-
-				game.Play(aiMarker, aiChoice);
-				var aiPosition = new Position { GameId = position.GameId, Index = aiChoice, Marker = aiMarker };
-
-				_context.Positions.Add(aiPosition);
+				var aiMarker = position.Marker == "X" ? "O" : "X";			
+				game.PlacePlayerMarker(aiMarker, aiChoice);
 				await _context.SaveChangesAsync();
 
-				isDraw = game.CheckGameOverDraw();
-				if (isDraw)
-				{
-					return new JsonResult(new { message = "Game is a Draw" });
-				}
 				isWinner = game.CheckWinner();
 				if (isWinner)
 				{
 					return new JsonResult(new { message = position.Marker + ", You have lost" });
 				}
 
-				return new JsonResult(aiPosition);
+				isDraw = game.CheckGameOverDraw();
+				if (isDraw)
+				{
+					return new JsonResult(new { message = "Game is a Draw" });
+				}
+			
+
+				return new JsonResult(new Position {Marker = aiMarker, Index = aiChoice, GameId = position.GameId });
 			}
 
 			return new JsonResult(new { message = "Game is a Draw" });

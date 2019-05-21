@@ -15,9 +15,9 @@ namespace tictactoe_server.Controllers
 	{
 		private readonly TicTacToeContext _context;
 
-		public GamesController()
+		public GamesController(TicTacToeContext context)
 		{
-			_context = new TicTacToeContext();
+			_context = context;
 		}
 
 		// GET: api/Games
@@ -79,11 +79,17 @@ namespace tictactoe_server.Controllers
 			{
 				PlayerOne = new Player { IsActive = marker == "X", Marker = "X" },
 				PlayerTwo = new Player { IsActive = marker == "O", Marker = "O" }
-			};
+			};		
 
 			_context.Games.Add(game);
 			await _context.SaveChangesAsync();
 
+			game.Positions = new List<Position>();
+			for (var i = 0; i < 9; i++)
+			{
+				game.Positions.Add(new Position() { Index = i, Marker = string.Empty });
+			}
+			await _context.SaveChangesAsync();
 			return new JsonResult(game);
 		}
 

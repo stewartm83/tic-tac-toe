@@ -42,6 +42,7 @@ export default {
   },
   methods: {
     resetGame() {
+      this.resultMessage = "";
       for (let i = 0; i < 9; i++) {
         const item = "cell" + i;
         this.$refs[item].textContent = "";
@@ -68,9 +69,8 @@ export default {
       const item = "cell" + n;
 
       if (this.$refs[item].textContent !== "") {
-             alert("Square already taken");
+        alert("Square already taken");
         return;
-        
       }
       this.errorMessage = "";
 
@@ -81,8 +81,6 @@ export default {
         marker: this.activePlayer,
         gameId: this.gameId
       };
-
-      // const apiUrl = process.env.API_URL;
       axios({
         method: "POST",
         url: this.apiUrl + "/api/Positions",
@@ -94,7 +92,7 @@ export default {
         headers: { "Content-Type": "application/json" }
       }).then(
         result => {
-          if(result.data.message){
+          if (result.data.message) {
             this.resultMessage = result.data.message;
             alert(result.data.message);
             return;
